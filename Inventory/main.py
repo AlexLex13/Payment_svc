@@ -24,6 +24,9 @@ class Product(HashModel):
     price: float
     quantity: int
 
+    class Meta:
+        database = redis
+
 
 @app.get("/products")
 async def get_all_products():

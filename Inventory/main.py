@@ -16,7 +16,7 @@ app.add_middleware(
 redis = get_redis_connection(
     host=settings.redis_host,
     port=settings.redis_port,
-    db=0
+    db=settings.redis_db
 )
 
 

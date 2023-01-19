@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel
 from starlette.requests import Request
 from config import settings
+import requests
 
 app = FastAPI()
 
@@ -17,7 +18,7 @@ app.add_middleware(
 redis = get_redis_connection(
     host=settings.redis_host,
     port=settings.redis_port,
-    db=1
+    db=settings.redis_db
 )
 
 
@@ -36,4 +37,5 @@ class Order(HashModel):
 @app.post('/orders')
 async def create_order(request: Request):
     body = await request.json()
-
+    req = requests.get(f'http://localhost:8000/products/{body["id"]}')
+    return req.json()

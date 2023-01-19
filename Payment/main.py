@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel
+from starlette.requests import Request
 from config import settings
 
 app = FastAPI()
@@ -16,34 +17,23 @@ app.add_middleware(
 redis = get_redis_connection(
     host=settings.redis_host,
     port=settings.redis_port,
-    db=0
+    db=1
 )
 
 
-class Product(HashModel):
-    name: str
+class Order(HashModel):
+    product_id: str
     price: float
-    quantity: int
+    fee: float
+    total: float
+    quantity: str
+    status: str
 
     class Meta:
         database = redis
 
 
-@app.get("/products")
-async def get_all_products():
-    return [Product.get(pk) for pk in Product.all_pks()]
+@app.post('/orders')
+async def create_order(request: Request):
+    body = await request.json()
 
-
-@app.get("/products/{pk}")
-async def get_one_product(pk: str):
-    return Product.get(pk)
-
-
-@app.post("/products")
-async def create_product(product: Product):
-    return product.save()
-
-
-@app.delete("/products/{pk}")
-async def delete_product(pk: str):
-    return Product.delete(pk)
